@@ -62,9 +62,51 @@ Theta2_grad = zeros(size(Theta2));
 %               and Theta2_grad from Part 2.
 %
 
+X = [ones(m,1) X];
+
+bigdelta1 = zeros(size(Theta1));
+bigdelta2 = zeros(size(Theta2));
+
+for i=1:m
+	hidden = sigmoid(X(i,:) * Theta1'); % 1 x 25 representing hiden layer activation cost (after applying to sigmoid)
+	z_2 = (X(i,:) * Theta1')';
+	z_2 = [1; z_2];
+	hidden = [ones(size(hidden,1),1) hidden];
+	output = sigmoid(hidden * Theta2'); % 1 x 10 representing probability of last layer (output layer)
+	y_vector = zeros(num_labels,1);
+	y_vector(y(i)) = 1;
+	for k=1:num_labels
+		J = J + (-y_vector(k) * log(output(k))) - ((1-y_vector(k)) * log(1-output(k)));
+	end
+
+	delta = output' - y_vector;
+	delta_2 = (Theta2' * delta) .* sigmoidGradient(z_2);
+	delta_2 = delta_2(2:end);
+
+	bigdelta2 = bigdelta2 + (delta * hidden);
+	bigdelta1 = bigdelta1 + (delta_2 * X(i,:));
+
+end
+
+bigdelta1 = (1/m) .* bigdelta1;
+bigdelta2 = (1/m) .* bigdelta2;
+
+bigdelta1 = bigdelta1 + ((lambda / m) .* Theta1);
+bigdelta2 = bigdelta2 + ((lambda / m) .* Theta2);
+
+bigdelta1(:,1) = bigdelta1(:,1) - ((lambda / m) .* Theta1(:,1));
+bigdelta2(:,1) = bigdelta2(:,1) - ((lambda / m) .* Theta2(:,1));
 
 
+J = J / m ;
 
+Theta1_reg = Theta1(:, 2:end);
+Theta1_reg = Theta1_reg .^ 2;
+
+Theta2_reg = Theta2(:, 2:end);
+Theta2_reg = Theta2_reg .^ 2;
+
+J = J + ((lambda / (2 * m)) * (sum(sum(Theta1_reg)) + sum(sum(Theta2_reg))));
 
 
 
@@ -85,7 +127,7 @@ Theta2_grad = zeros(size(Theta2));
 % =========================================================================
 
 % Unroll gradients
-grad = [Theta1_grad(:) ; Theta2_grad(:)];
+grad = [bigdelta1(:); bigdelta2(:)];
 
 
 end
