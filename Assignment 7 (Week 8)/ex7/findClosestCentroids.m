@@ -21,7 +21,19 @@ idx = zeros(size(X,1), 1);
 % Note: You can use a for-loop over the examples to compute this.
 %
 
+X_size = size(X,1);
 
+for i=1:X_size
+	idx(i) = 1;
+	min = sum(((X(i,:)' - centroids(1,:)').^2) );
+	for j=2:K
+		min_candidate = sum(((X(i,:)' - centroids(j,:)').^2) );
+		if min_candidate < min
+			min = min_candidate;
+			idx(i) = j;
+		end
+	end
+end
 
 
 
