@@ -22,7 +22,15 @@ sigma2 = zeros(n, 1);
 %
 
 
-
+% its m x n 
+mu = 1/m * (sum(X));
+for i = 1:n
+	temp = 0;
+	for j= 1:m
+		temp = temp + (X(j,i) - mu(i))^2;
+	end
+	sigma2(i) = temp/m;
+end
 
 
 
